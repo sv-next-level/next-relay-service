@@ -28,13 +28,17 @@ export class EmailController {
       const savedEmailData: emailDocument =
         await this.emailService.saveEmailData(sendEmailDto);
 
-      // TODO: Create email template as per email type
+      // Create email template as per email type
+      const emailHtmlTemplate: string = this.emailService.getEmailHtmlTemplate(
+        savedEmailData.email_type,
+        savedEmailData.data
+      );
 
       // Send email
       const sendedEmailData: any = await this.emailService.sendEmail(
         savedEmailData.to,
         savedEmailData.email_type,
-        savedEmailData.data
+        emailHtmlTemplate
       );
 
       // Update in db
@@ -129,13 +133,17 @@ export class EmailController {
         return { success: false, message: "Invalid relayId!" };
       }
 
-      // TODO: Create email template as per email type
+      // Create email template as per email type
+      const emailHtmlTemplate: string = this.emailService.getEmailHtmlTemplate(
+        relayTransaction.email_type,
+        resendEmailDto.data
+      );
 
       // Resend email
       const sendedEmailData: any = await this.emailService.sendEmail(
         relayTransaction.to,
         relayTransaction.email_type,
-        resendEmailDto.data
+        emailHtmlTemplate
       );
 
       const updateData = {

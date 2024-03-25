@@ -5,8 +5,13 @@ import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
 
 import { SendEmailDTO } from "@/dtos";
-import { DATABASE_CONNECTION_NAME } from "@/constants";
+import { DATABASE_CONNECTION_NAME, EMAIL_TYPE } from "@/constants";
 import { EMAIL_MODEL, emailDocument } from "@/schemas/email.schema";
+import {
+  email2FACodeTemplate,
+  emailCreatePasswordTemplate,
+  emailForgotPasswordTemplate,
+} from "@/templates/email";
 
 @Injectable()
 export class EmailService {
@@ -50,6 +55,23 @@ export class EmailService {
       return savedEmailData;
     } catch (error) {
       console.log("🚀 ~ EmailService ~ saveEmailData ~ error:", error);
+    }
+  }
+
+  getEmailHtmlTemplate(email_type: string, data: string): string {
+    try {
+      switch (email_type) {
+        case EMAIL_TYPE.OTP_2FA:
+          return email2FACodeTemplate(data);
+        case EMAIL_TYPE.CREATE_PW:
+          return emailCreatePasswordTemplate(data);
+        case EMAIL_TYPE.FORGOT_PW:
+          return emailForgotPasswordTemplate(data);
+        default:
+          return "";
+      }
+    } catch (error) {
+      console.log("🚀 ~ EmailService ~ getEmailHtmlTemplate ~ error:", error);
     }
   }
 
