@@ -1,0 +1,3 @@
+export enum DATABASE_CONNECTION_NAME {
+  RELAY_DB = "RELAY_DB",
+}

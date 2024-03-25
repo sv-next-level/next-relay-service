@@ -1,25 +1,20 @@
 import { plainToInstance } from "class-transformer";
 import { IsEnum, IsNumber, Max, Min, validateSync } from "class-validator";
 
-enum Environment {
-  Test = "test",
-  Provision = "provision",
-  Production = "production",
-  Development = "development",
-}
+import { ENVIRONMENT } from "@/constants";
 
-class EnvironmentVariables {
-  @IsEnum(Environment)
-  NODE_ENV: Environment;
+class ENV_VARIABLES {
+  @IsEnum(ENVIRONMENT)
+  NODE_ENV: ENVIRONMENT;
 
   @IsNumber()
   @Min(0)
   @Max(65535)
-  PORT: Number;
+  PORT: number;
 }
 
 export function validate(config: Record<string, unknown>) {
-  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
+  const validatedConfig = plainToInstance(ENV_VARIABLES, config, {
     enableImplicitConversion: true,
   });
   const errors = validateSync(validatedConfig, {

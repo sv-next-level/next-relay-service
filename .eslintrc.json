@@ -26,7 +26,6 @@
   "rules": {
     "require-await": "warn",
     "no-unused-vars": "off",
-    "unused-imports/no-unused-imports": "error",
     "no-return-await": "warn",
     "@typescript-eslint/await-thenable": "error",
     "prefer-const": [
