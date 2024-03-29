@@ -3,7 +3,7 @@ import { IsEnum, IsNumber, Max, Min, validateSync } from "class-validator";
 
 import { ENVIRONMENT } from "@/constants";
 
-class ENV_VARIABLES {
+class EnvVariables {
   @IsEnum(ENVIRONMENT)
   NODE_ENV: ENVIRONMENT;
 
@@ -14,7 +14,7 @@ class ENV_VARIABLES {
 }
 
 export function validate(config: Record<string, unknown>) {
-  const validatedConfig = plainToInstance(ENV_VARIABLES, config, {
+  const validatedConfig = plainToInstance(EnvVariables, config, {
     enableImplicitConversion: true,
   });
   const errors = validateSync(validatedConfig, {
