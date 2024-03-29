@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   relay-service-dev:
-    container_name: relay-service
+    container_name: relay-service-develop
     image: relay-service-dev:1.0.0
     build: .
     ports:
