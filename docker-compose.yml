@@ -1,0 +1,9 @@
+version: '3.9'
+
+services:
+  relay-service-dev:
+    container_name: relay-service
+    image: relay-service-dev:1.0.0
+    build: .
+    ports:
+      - 8001:8001
