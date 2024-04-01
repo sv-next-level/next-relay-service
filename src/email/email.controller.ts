@@ -101,7 +101,7 @@ export class EmailController {
     try {
       this.logger.debug({
         message: "Entering verify",
-        // relayId: relayId,
+        verifyEmailDto: verifyEmailDto,
       });
 
       // Fetch relay transaction by relay id
@@ -189,7 +189,7 @@ export class EmailController {
     try {
       this.logger.debug({
         message: "Entering resend",
-        // relayId: relayId,
+        resendEmailDto: resendEmailDto,
       });
 
       // Fetch relay transaction by relay id
