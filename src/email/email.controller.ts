@@ -97,6 +97,7 @@ export class EmailController {
   async verify(@Body() verifyEmailDto: VerifyEmailDTO): Promise<{
     success: boolean;
     message: string;
+    data?: string;
   }> {
     try {
       this.logger.debug({
@@ -161,7 +162,11 @@ export class EmailController {
         is_expired: is_expired,
       });
 
-      return { success: true, message: "Transaction not expired!" };
+      return {
+        success: true,
+        message: "Transaction not expired!",
+        data: relayTransaction.data,
+      };
     } catch (error) {
       this.logger.error({
         message: "Error verifying email",

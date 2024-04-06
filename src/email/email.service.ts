@@ -102,9 +102,9 @@ export class EmailService {
         case EMAIL_TYPE.OTP_2FA:
           return email2FACodeTemplate(data);
         case EMAIL_TYPE.CREATE_PW:
-          return emailCreatePasswordTemplate(data);
+          return emailCreatePasswordTemplate(JSON.parse(data).link);
         case EMAIL_TYPE.FORGOT_PW:
-          return emailForgotPasswordTemplate(data);
+          return emailForgotPasswordTemplate(JSON.parse(data).link);
         default:
           return "";
       }
