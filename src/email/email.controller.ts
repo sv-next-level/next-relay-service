@@ -21,9 +21,7 @@ export class EmailController {
    * @returns
    */
   @Post("send")
-  async send(@Body() sendEmailDto: SendEmailDTO): Promise<{
-    relayId: string;
-  }> {
+  async send(@Body() sendEmailDto: SendEmailDTO): Promise<string> {
     try {
       this.logger.debug({
         message: "Entering send",
@@ -70,9 +68,7 @@ export class EmailController {
       });
 
       // Send updated relay id
-      return {
-        relayId: updatedRelayId,
-      };
+      return updatedRelayId;
     } catch (error) {
       this.logger.error({
         message: "Error sending email",
@@ -94,11 +90,7 @@ export class EmailController {
    * @returns
    */
   @Post("verify")
-  async verify(@Body() verifyEmailDto: VerifyEmailDTO): Promise<{
-    success: boolean;
-    message: string;
-    data?: string;
-  }> {
+  async verify(@Body() verifyEmailDto: VerifyEmailDTO): Promise<boolean> {
     try {
       this.logger.debug({
         message: "Entering verify",
@@ -113,7 +105,7 @@ export class EmailController {
           message: "Invalid relayId!",
           relay_id: verifyEmailDto.relayId,
         });
-        return { success: false, message: "Invalid relayId!" };
+        return false;
       }
 
       // Compare expire time with current time
@@ -127,7 +119,7 @@ export class EmailController {
           relay_id: verifyEmailDto.relayId,
           is_expired: is_expired,
         });
-        return { success: false, message: "Transaction expired!" };
+        return false;
       }
 
       // Compare OTP if it is there
@@ -144,14 +136,14 @@ export class EmailController {
             relay_id: verifyEmailDto.relayId,
             is_otp_valid: is_otp_valid,
           });
-          return { success: true, message: "OTP verified!" };
+          return true;
         } else {
           this.logger.warn({
             message: "Invalid OTP!",
             relay_id: verifyEmailDto.relayId,
             is_otp_valid: is_otp_valid,
           });
-          return { success: false, message: "Invalid OTP!" };
+          return false;
         }
       }
 
@@ -162,11 +154,7 @@ export class EmailController {
         is_expired: is_expired,
       });
 
-      return {
-        success: true,
-        message: "Transaction not expired!",
-        data: relayTransaction.data,
-      };
+      return true;
     } catch (error) {
       this.logger.error({
         message: "Error verifying email",
@@ -186,11 +174,7 @@ export class EmailController {
    * @returns
    */
   @Post("resend")
-  async resend(@Body() resendEmailDto: ResendEmailDTO): Promise<{
-    relayId?: string;
-    success?: boolean;
-    message?: string;
-  }> {
+  async resend(@Body() resendEmailDto: ResendEmailDTO): Promise<string> {
     try {
       this.logger.debug({
         message: "Entering resend",
@@ -205,7 +189,7 @@ export class EmailController {
           message: "Invalid relayId!",
           relay_id: resendEmailDto.relayId,
         });
-        return { success: false, message: "Invalid relayId!" };
+        return "";
       }
 
       // Create email template as per email type
@@ -247,9 +231,7 @@ export class EmailController {
       });
 
       // Send updated relay id
-      return {
-        relayId: updatedRelayId,
-      };
+      return updatedRelayId;
     } catch (error) {
       this.logger.error({
         message: "Error resending email",
