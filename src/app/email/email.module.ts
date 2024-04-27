@@ -1,10 +1,8 @@
 import { Module } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
 
-import { EmailService } from "@/email/email.service";
+import { EmailController, EmailService } from ".";
 import { DATABASE_CONNECTION_NAME } from "@/constants";
-import { EmailController } from "@/email/email.controller";
 import { EMAIL_MODEL, emailSchema } from "@/schemas/email.schema";
 
 @Module({
@@ -15,7 +13,7 @@ import { EMAIL_MODEL, emailSchema } from "@/schemas/email.schema";
     ),
   ],
   controllers: [EmailController],
-  providers: [EmailService, ConfigService],
+  providers: [EmailService],
   exports: [EmailService],
 })
 export class EmailModule {}

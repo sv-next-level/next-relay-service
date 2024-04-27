@@ -1,9 +1,10 @@
 import { Body, Controller, Logger, Post } from "@nestjs/common";
 
 import { EMAIL_TYPE } from "@/constants";
-import { EmailService } from "@/email/email.service";
+import { EmailService } from "@/app/email/email.service";
 import { emailDocument } from "@/schemas/email.schema";
 import { ResendEmailDTO, SendEmailDTO, VerifyEmailDTO } from "@/dtos";
+import { BadRequest, IApiResponse, InternalServerError, OK } from "@/utils";
 
 @Controller("email")
 export class EmailController {
@@ -21,7 +22,7 @@ export class EmailController {
    * @returns
    */
   @Post("send")
-  async send(@Body() sendEmailDto: SendEmailDTO): Promise<string> {
+  async send(@Body() sendEmailDto: SendEmailDTO): Promise<IApiResponse> {
     try {
       this.logger.debug({
         message: "Entering send",
@@ -53,10 +54,15 @@ export class EmailController {
       );
 
       // Update in db
+      const expiresAfter = new Date(
+        Date.now() + sendEmailDto.expires_after * 1000
+      );
       const updateData: any = {
         message_id: sendedEmailData.messageId,
         vendor_reponse: sendedEmailData.response,
+        expires_at: expiresAfter,
       };
+
       const updatedRelayId: string = await this.emailService.updateEmailData(
         savedEmailData._id,
         updateData
@@ -65,10 +71,16 @@ export class EmailController {
       this.logger.log({
         message: "Sending email relay id",
         relay_id: updatedRelayId,
+        expires_after: expiresAfter,
       });
 
-      // Send updated relay id
-      return updatedRelayId;
+      const data = {
+        message: "Email sent successfully",
+        relay_id: updatedRelayId,
+        expires_after: expiresAfter,
+      };
+
+      return OK(data);
     } catch (error) {
       this.logger.error({
         message: "Error sending email",
@@ -76,6 +88,8 @@ export class EmailController {
         email_type: sendEmailDto.email_type,
         error: error,
       });
+
+      return InternalServerError(error);
     }
   }
 
@@ -90,7 +104,7 @@ export class EmailController {
    * @returns
    */
   @Post("verify")
-  async verify(@Body() verifyEmailDto: VerifyEmailDTO): Promise<boolean> {
+  async verify(@Body() verifyEmailDto: VerifyEmailDTO): Promise<IApiResponse> {
     try {
       this.logger.debug({
         message: "Entering verify",
@@ -105,7 +119,13 @@ export class EmailController {
           message: "Invalid relayId!",
           relay_id: verifyEmailDto.relayId,
         });
-        return false;
+
+        const data = {
+          message: "Invalid relayId!",
+          result: false,
+        };
+
+        return OK(data);
       }
 
       // Compare expire time with current time
@@ -119,7 +139,13 @@ export class EmailController {
           relay_id: verifyEmailDto.relayId,
           is_expired: is_expired,
         });
-        return false;
+
+        const data = {
+          message: "Transaction expired!",
+          result: false,
+        };
+
+        return OK(data);
       }
 
       // Compare OTP if it is there
@@ -136,14 +162,26 @@ export class EmailController {
             relay_id: verifyEmailDto.relayId,
             is_otp_valid: is_otp_valid,
           });
-          return true;
+
+          const data = {
+            message: "OTP verified!",
+            result: true,
+          };
+
+          return OK(data);
         } else {
           this.logger.warn({
             message: "Invalid OTP!",
             relay_id: verifyEmailDto.relayId,
             is_otp_valid: is_otp_valid,
           });
-          return false;
+
+          const data = {
+            message: "Invalid OTP!",
+            result: false,
+          };
+
+          return OK(data);
         }
       }
 
@@ -154,12 +192,19 @@ export class EmailController {
         is_expired: is_expired,
       });
 
-      return true;
+      const data = {
+        message: "Transaction not expired!",
+        result: true,
+      };
+
+      return OK(data);
     } catch (error) {
       this.logger.error({
         message: "Error verifying email",
         error: error,
       });
+
+      return InternalServerError(error);
     }
   }
 
@@ -174,7 +219,7 @@ export class EmailController {
    * @returns
    */
   @Post("resend")
-  async resend(@Body() resendEmailDto: ResendEmailDTO): Promise<string> {
+  async resend(@Body() resendEmailDto: ResendEmailDTO): Promise<IApiResponse> {
     try {
       this.logger.debug({
         message: "Entering resend",
@@ -189,7 +234,12 @@ export class EmailController {
           message: "Invalid relayId!",
           relay_id: resendEmailDto.relayId,
         });
-        return "";
+
+        const data = {
+          message: "Invalid relayId!",
+        };
+
+        throw BadRequest(data);
       }
 
       // Create email template as per email type
@@ -212,13 +262,14 @@ export class EmailController {
         emailHtmlTemplate
       );
 
+      const expiresAfter = new Date(
+        Date.now() + resendEmailDto.expires_after * 1000
+      );
       const updateData: any = {
         data: resendEmailDto.data,
         message_id: sendedEmailData.messageId,
         vendor_reponse: sendedEmailData.response,
-        expires_after: new Date(
-          Date.now() + resendEmailDto.expires_after * 1000
-        ),
+        expires_after: expiresAfter,
       };
       const updatedRelayId: string = await this.emailService.updateEmailData(
         relayTransaction._id,
@@ -228,16 +279,24 @@ export class EmailController {
       this.logger.log({
         message: "Sending email relay id",
         relay_id: updatedRelayId,
+        expires_after: expiresAfter,
       });
 
-      // Send updated relay id
-      return updatedRelayId;
+      const data = {
+        message: "Email resent successfully",
+        relay_id: updatedRelayId,
+        expires_after: expiresAfter,
+      };
+
+      return OK(data);
     } catch (error) {
       this.logger.error({
         message: "Error resending email",
         relayId: resendEmailDto.relayId,
         error: error,
       });
+
+      return InternalServerError(error);
     }
   }
 }

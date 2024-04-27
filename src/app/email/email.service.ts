@@ -68,21 +68,15 @@ export class EmailService {
         message: "Entering saveEmailData",
         emailData: emailData,
       });
-      const expiresAfter = new Date(
-        Date.now() + emailData.expires_after * 1000
-      );
-      const newEmail = new this.emailModel({
-        ...emailData,
-        expires_after: expiresAfter,
-      });
 
-      const savedEmailData: emailDocument = await newEmail.save();
+      const newEmail = await this.emailModel.create(emailData);
+
       this.logger.log({
         message: "After saving email data",
-        savedEmailData: savedEmailData,
+        newEmail: newEmail,
       });
 
-      return savedEmailData;
+      return newEmail;
     } catch (error) {
       this.logger.error({
         message: "Error saving email data",

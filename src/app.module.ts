@@ -5,7 +5,7 @@ import { AppService } from "@/app.service";
 import { AppController } from "@/app.controller";
 import configuration from "@/config/configuration";
 import { validate } from "@/config/env.validation";
-import { EmailModule } from "@/email/email.module";
+import { EmailModule } from "@/app/email/email.module";
 import { DatabaseModule } from "@/infra/mongoose/database.module";
 
 @Module({

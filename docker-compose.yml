@@ -6,4 +6,4 @@ services:
     image: relay-service-dev:1.0.0
     build: .
     ports:
-      - 8001:8001
+      - 8002:8002

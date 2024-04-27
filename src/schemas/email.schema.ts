@@ -16,7 +16,7 @@ export class Email {
   data: string;
 
   @Prop({ type: Date, required: true })
-  expires_after: Date;
+  expires_after?: Date;
 
   @Prop({ type: String })
   response_code?: string;
