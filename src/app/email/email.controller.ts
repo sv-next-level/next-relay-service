@@ -60,7 +60,7 @@ export class EmailController {
       const updateData: any = {
         message_id: sendedEmailData.messageId,
         vendor_reponse: sendedEmailData.response,
-        expires_at: expiresAfter,
+        expires_after: expiresAfter,
       };
 
       const updatedRelayId: string = await this.emailService.updateEmailData(
