@@ -8,8 +8,13 @@ import { EmailDocument } from "@/db/mongo/model";
 
 @Controller("email")
 export class EmailController {
-  private logger: Logger = new Logger("email.controller");
-  constructor(private readonly emailService: EmailService) {}
+  private logger: Logger = new Logger(EmailController.name);
+
+  constructor(private readonly emailService: EmailService) {
+    this.logger.debug({
+      message: "Entering constructor: " + EmailController.name,
+    });
+  }
 
   /**
    * steps:
@@ -22,45 +27,45 @@ export class EmailController {
    * @returns
    */
   @Post("send")
-  async send(@Body() sendEmailDto: SendEmailDTO): Promise<IApiResponse> {
+  async send(@Body() sendEmailData: SendEmailDTO): Promise<IApiResponse> {
     try {
       this.logger.debug({
         message: "Entering send",
-        emailData: sendEmailDto,
+        emailData: sendEmailData,
       });
 
       // Save email details in db
       const savedEmailData: EmailDocument =
-        await this.emailService.saveEmailData(sendEmailDto);
+        await this.emailService.saveEmailData(sendEmailData);
 
       // Create email template as per email type
       const emailHtmlTemplate: string = this.emailService.getEmailHtmlTemplate(
-        savedEmailData.email_type,
-        savedEmailData.data
+        savedEmailData.action,
+        savedEmailData.data.otp
       );
       if (!emailHtmlTemplate) {
         this.logger.warn({
           message: "Email template could not be found",
-          requesting_service: sendEmailDto.requesting_service_type,
-          email_type: sendEmailDto.email_type,
+          requesting_service: sendEmailData.requesting_service,
+          email_type: sendEmailData.type,
         });
       }
 
       // Send email
       const sendedEmailData: any = await this.emailService.sendEmail(
         savedEmailData.to,
-        savedEmailData.email_type,
+        savedEmailData.type,
         emailHtmlTemplate
       );
 
       // Update in db
       const expiresAfter = new Date(
-        Date.now() + sendEmailDto.expires_after * 1000
+        Date.now() + sendEmailData.expires_after * 1000
       );
       const updateData: any = {
         message_id: sendedEmailData.messageId,
         vendor_reponse: sendedEmailData.response,
-        expires_after: expiresAfter,
+        expiresAt: expiresAfter,
       };
 
       const updatedRelayId: string = await this.emailService.updateEmailData(
@@ -84,8 +89,8 @@ export class EmailController {
     } catch (error) {
       this.logger.error({
         message: "Error sending email",
-        requesting_service: sendEmailDto.requesting_service_type,
-        email_type: sendEmailDto.email_type,
+        requesting_service: sendEmailData.requesting_service,
+        email_type: sendEmailData.type,
         error: error,
       });
 
@@ -130,12 +135,12 @@ export class EmailController {
 
       // Compare expire time with current time
       const current_time: Date = new Date();
-      const is_expired: boolean = relayTransaction.expires_after < current_time;
+      const is_expired: boolean = relayTransaction.expiresAt < current_time;
 
       if (is_expired) {
         this.logger.warn({
           message: "Transaction expired!",
-          expires_after: relayTransaction.expires_after,
+          expires_after: relayTransaction.expiresAt,
           relay_id: verifyEmailDto.relayId,
           is_expired: is_expired,
         });
@@ -149,8 +154,7 @@ export class EmailController {
       }
 
       // Compare OTP if it is there
-      const is_otp_transaction: boolean =
-        relayTransaction.email_type === TYPE.OTP;
+      const is_otp_transaction: boolean = relayTransaction.type === TYPE.OTP;
 
       if (is_otp_transaction) {
         const is_otp_valid: boolean =
@@ -187,7 +191,7 @@ export class EmailController {
 
       this.logger.log({
         message: "Transaction not expired!",
-        expires_after: relayTransaction.expires_after,
+        expires_after: relayTransaction.expiresAt,
         relay_id: verifyEmailDto.relayId,
         is_expired: is_expired,
       });
@@ -244,21 +248,21 @@ export class EmailController {
 
       // Create email template as per email type
       const emailHtmlTemplate: string = this.emailService.getEmailHtmlTemplate(
-        relayTransaction.email_type,
+        relayTransaction.type,
         resendEmailDto.data
       );
       if (!emailHtmlTemplate) {
         this.logger.warn({
           message: "Email template could not be found",
-          requesting_service: relayTransaction.requesting_service_type,
-          email_type: relayTransaction.email_type,
+          requesting_service: relayTransaction.requesting_service,
+          email_type: relayTransaction.type,
         });
       }
 
       // Resend email
       const sendedEmailData: any = await this.emailService.sendEmail(
         relayTransaction.to,
-        relayTransaction.email_type,
+        relayTransaction.type,
         emailHtmlTemplate
       );
 
@@ -269,7 +273,7 @@ export class EmailController {
         data: resendEmailDto.data,
         message_id: sendedEmailData.messageId,
         vendor_reponse: sendedEmailData.response,
-        expires_after: expiresAfter,
+        expiresAt: expiresAfter,
       };
       const updatedRelayId: string = await this.emailService.updateEmailData(
         relayTransaction._id,

@@ -70,7 +70,16 @@ export class EmailService {
         emailData: emailData,
       });
 
-      const newEmail = await this.emailModel.create(emailData);
+      const data = {
+        to: emailData.to,
+        from: this.configService.get("SMTP_EMAIL"),
+        type: emailData.type,
+        data: emailData.data.otp,
+        action: emailData.action,
+        requesting_service: emailData.requesting_service,
+      };
+
+      const newEmail = await this.emailModel.create(data);
 
       this.logger.log({
         message: "After saving email data",
@@ -86,14 +95,14 @@ export class EmailService {
     }
   }
 
-  getEmailHtmlTemplate(email_type: string, data: string): string {
+  getEmailHtmlTemplate(action: string, data: string): string {
     try {
       this.logger.debug({
         message: "Entering getEmailHtmlTemplate",
-        email_type: email_type,
+        action: action,
         data: data,
       });
-      switch (email_type) {
+      switch (action) {
         case OTP.TWO_FACTOR_AUTHENTICATION:
           return email2FACodeTemplate(data);
         case PASSWORD.CREATE:
@@ -106,7 +115,7 @@ export class EmailService {
     } catch (error) {
       this.logger.error({
         message: "Error selecting email template",
-        email_type: email_type,
+        action: action,
         error: error,
       });
     }
