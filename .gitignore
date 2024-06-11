@@ -128,3 +128,13 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# dev dependencies
+.husky
+.czrc
+.eslintignore
+.eslintrc
+.lintstagedrc
+.prettierignore
+.prettierrc
+.releaserc

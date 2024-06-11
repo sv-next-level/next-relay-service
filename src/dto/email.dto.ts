@@ -7,7 +7,8 @@ import {
   IsString,
 } from "class-validator";
 
-import { EMAIL_TYPE, SERVICE_TYPE } from "@/constants";
+import { EMAIL_ACTION } from "@/common/notification";
+import { SERVICE } from "@/common/server/service";
 
 export class SendEmailDTO {
   @IsString()
@@ -24,13 +25,13 @@ export class SendEmailDTO {
 
   @IsNotEmpty()
   @IsString()
-  @IsEnum(EMAIL_TYPE, { message: "Invalid email type!" })
-  readonly email_type: EMAIL_TYPE;
+  @IsEnum(EMAIL_ACTION, { message: "Invalid email type!" })
+  readonly email_type: string;
 
   @IsNotEmpty()
   @IsString()
-  @IsEnum(SERVICE_TYPE, { message: "Invalid service request!" })
-  readonly requesting_service_type: SERVICE_TYPE;
+  @IsEnum(SERVICE, { message: "Invalid service request!" })
+  readonly requesting_service_type: string;
 }
 
 export class VerifyEmailDTO {

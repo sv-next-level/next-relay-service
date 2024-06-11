@@ -2,14 +2,14 @@ import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 
 import { EmailController, EmailService } from ".";
-import { DATABASE_CONNECTION_NAME } from "@/constants";
-import { EMAIL_MODEL, emailSchema } from "@/schemas/email.schema";
+import { MONGOOSE_DB_CONNECTION } from "@/db/connection";
+import { EMAIL_SCHEMA_NAME, EmailSchema } from "@/db/mongo/model";
 
 @Module({
   imports: [
     MongooseModule.forFeature(
-      [{ name: EMAIL_MODEL, schema: emailSchema }],
-      DATABASE_CONNECTION_NAME.RELAY_DB
+      [{ name: EMAIL_SCHEMA_NAME, schema: EmailSchema }],
+      MONGOOSE_DB_CONNECTION.MAIN
     ),
   ],
   controllers: [EmailController],

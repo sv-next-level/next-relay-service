@@ -1,14 +1,12 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "lib": ["dom", "dom.iterable", "esnext"],
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "target": "ES2021",
-    "strict": true,
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
@@ -17,10 +15,12 @@
     "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/common/*": ["./src/shared/common/ts/*"],
+      "@/nestjs/*": ["./src/shared/nestjs/src/*"]
     }
   }
 }

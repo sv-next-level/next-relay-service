@@ -4,14 +4,15 @@ import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
 import { Injectable, Logger } from "@nestjs/common";
 
-import { SendEmailDTO } from "@/dtos";
-import { DATABASE_CONNECTION_NAME, EMAIL_TYPE } from "@/constants";
-import { EMAIL_MODEL, emailDocument } from "@/schemas/email.schema";
+import { SendEmailDTO } from "@/dto";
+import { OTP, PASSWORD } from "@/common/notification";
 import {
   email2FACodeTemplate,
   emailCreatePasswordTemplate,
   emailForgotPasswordTemplate,
 } from "@/templates/email";
+import { MONGOOSE_DB_CONNECTION } from "@/db/connection";
+import { EMAIL_SCHEMA_NAME, EmailDocument } from "@/db/mongo/model";
 
 @Injectable()
 export class EmailService {
@@ -19,8 +20,8 @@ export class EmailService {
   private logger: Logger = new Logger("email.service");
 
   constructor(
-    @InjectModel(EMAIL_MODEL, DATABASE_CONNECTION_NAME.RELAY_DB)
-    private readonly emailModel: Model<emailDocument>,
+    @InjectModel(EMAIL_SCHEMA_NAME, MONGOOSE_DB_CONNECTION.MAIN)
+    private readonly emailModel: Model<EmailDocument>,
     private readonly configService: ConfigService
   ) {
     try {
@@ -38,14 +39,14 @@ export class EmailService {
     }
   }
 
-  async getRelayTransaction(relayId: string): Promise<emailDocument> {
+  async getRelayTransaction(relayId: string): Promise<EmailDocument> {
     try {
       this.logger.debug({
         message: "Entering getRelayTransaction",
         relayId: relayId,
       });
 
-      const relayTransaction: emailDocument =
+      const relayTransaction: EmailDocument =
         await this.emailModel.findById(relayId);
       this.logger.log({
         message: "After getting relay transaction",
@@ -62,7 +63,7 @@ export class EmailService {
     }
   }
 
-  async saveEmailData(emailData: SendEmailDTO): Promise<emailDocument> {
+  async saveEmailData(emailData: SendEmailDTO): Promise<EmailDocument> {
     try {
       this.logger.debug({
         message: "Entering saveEmailData",
@@ -93,11 +94,11 @@ export class EmailService {
         data: data,
       });
       switch (email_type) {
-        case EMAIL_TYPE.OTP_2FA:
+        case OTP.TWO_FACTOR_AUTHENTICATION:
           return email2FACodeTemplate(data);
-        case EMAIL_TYPE.CREATE_PW:
+        case PASSWORD.CREATE:
           return emailCreatePasswordTemplate(JSON.parse(data).link);
-        case EMAIL_TYPE.FORGOT_PW:
+        case PASSWORD.FORGOT:
           return emailForgotPasswordTemplate(JSON.parse(data).link);
         default:
           return "";
@@ -154,7 +155,7 @@ export class EmailService {
         relayId: relayId,
       });
 
-      const updatedData: emailDocument =
+      const updatedData: EmailDocument =
         await this.emailModel.findByIdAndUpdate(relayId, updateData);
       this.logger.log({
         message: "After updating email data",

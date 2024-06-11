@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
-import { EMAIL_TYPE, EMAIL_VENDOR_TYPE, SERVICE_TYPE } from "@/constants";
+import { SERVICE } from "@/common/server/service";
+import { EMAIL_VENDOR, EMAIL_ACTION } from "@/common/notification";
 
 @Schema({
   timestamps: true,
@@ -32,20 +33,20 @@ export class Email {
 
   @Prop({
     type: String,
-    enum: EMAIL_VENDOR_TYPE,
-    default: EMAIL_VENDOR_TYPE.SMTP_EMAIL,
+    enum: EMAIL_VENDOR,
+    default: EMAIL_VENDOR.SMTP_EMAIL,
   })
-  vendor_type: EMAIL_VENDOR_TYPE;
+  vendor_type: string;
 
-  @Prop({ type: String, enum: EMAIL_TYPE, required: true })
-  email_type: EMAIL_TYPE;
+  @Prop({ type: String, enum: EMAIL_ACTION, required: true })
+  email_type: string;
 
-  @Prop({ type: String, enum: SERVICE_TYPE, required: true })
-  requesting_service_type: SERVICE_TYPE;
+  @Prop({ type: String, enum: SERVICE, required: true })
+  requesting_service_type: string;
 }
 
-export const emailSchema = SchemaFactory.createForClass(Email);
+export const EMAIL_SCHEMA_NAME: string = Email.name;
 
-export type emailDocument = Email & Document & { _id: string };
+export const EmailSchema = SchemaFactory.createForClass(Email);
 
-export const EMAIL_MODEL = Email.name;
+export type EmailDocument = Email & Document & { _id: string };

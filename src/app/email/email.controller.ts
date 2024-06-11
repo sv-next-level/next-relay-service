@@ -1,10 +1,10 @@
 import { Body, Controller, Logger, Post } from "@nestjs/common";
 
-import { EMAIL_TYPE } from "@/constants";
+import { TYPE } from "@/common/notification";
 import { EmailService } from "@/app/email/email.service";
-import { emailDocument } from "@/schemas/email.schema";
-import { ResendEmailDTO, SendEmailDTO, VerifyEmailDTO } from "@/dtos";
+import { ResendEmailDTO, SendEmailDTO, VerifyEmailDTO } from "@/dto";
 import { BadRequest, IApiResponse, InternalServerError, OK } from "@/utils";
+import { EmailDocument } from "@/db/mongo/model";
 
 @Controller("email")
 export class EmailController {
@@ -30,7 +30,7 @@ export class EmailController {
       });
 
       // Save email details in db
-      const savedEmailData: emailDocument =
+      const savedEmailData: EmailDocument =
         await this.emailService.saveEmailData(sendEmailDto);
 
       // Create email template as per email type
@@ -112,7 +112,7 @@ export class EmailController {
       });
 
       // Fetch relay transaction by relay id
-      const relayTransaction: emailDocument =
+      const relayTransaction: EmailDocument =
         await this.emailService.getRelayTransaction(verifyEmailDto.relayId);
       if (!relayTransaction) {
         this.logger.warn({
@@ -150,7 +150,7 @@ export class EmailController {
 
       // Compare OTP if it is there
       const is_otp_transaction: boolean =
-        relayTransaction.email_type === EMAIL_TYPE.OTP_2FA;
+        relayTransaction.email_type === TYPE.OTP;
 
       if (is_otp_transaction) {
         const is_otp_valid: boolean =
@@ -227,7 +227,7 @@ export class EmailController {
       });
 
       // Fetch relay transaction by relay id
-      const relayTransaction: emailDocument =
+      const relayTransaction: EmailDocument =
         await this.emailService.getRelayTransaction(resendEmailDto.relayId);
       if (!relayTransaction) {
         this.logger.warn({
