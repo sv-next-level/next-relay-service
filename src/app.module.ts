@@ -1,14 +1,17 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 
-import { AppService } from "@/app.service";
 import defaultConfiguration from "@/config";
-import { AppController } from "@/app.controller";
-import { EmailModule } from "@/app/email/email.module";
 import nestConfiguration, { validate } from "@/nestjs/config";
+
+import { EmailModule } from "@/app/email/email.module";
+
 import { MongooseDatabaseModule } from "@/nestjs/db/mongo/database.module";
 import { MongooseModelsModule } from "@/nestjs/db/mongo/mongoose-models.module";
-// import { RedisDatabaseModule } from "@/nestjs/db/redis/database.module";
+import { RedisDatabaseModule } from "@/nestjs/db/redis/database.module";
+
+import { AppController } from "@/app.controller";
+import { AppService } from "@/app.service";
 
 @Module({
   imports: [
@@ -20,7 +23,7 @@ import { MongooseModelsModule } from "@/nestjs/db/mongo/mongoose-models.module";
       validate,
     }),
     EmailModule,
-    // RedisDatabaseModule,
+    RedisDatabaseModule,
     MongooseModelsModule,
     MongooseDatabaseModule,
   ],

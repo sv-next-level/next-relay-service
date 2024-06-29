@@ -1,7 +1,8 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 
-import { EmailController, EmailService } from ".";
+import { EmailController, EmailService } from "@/app/email";
+
 import { MONGOOSE_DB_CONNECTION } from "@/db/connection";
 import { EMAIL_SCHEMA_NAME, EmailSchema } from "@/db/mongo/model";
 
@@ -9,7 +10,7 @@ import { EMAIL_SCHEMA_NAME, EmailSchema } from "@/db/mongo/model";
   imports: [
     MongooseModule.forFeature(
       [{ name: EMAIL_SCHEMA_NAME, schema: EmailSchema }],
-      MONGOOSE_DB_CONNECTION.MAIN
+      MONGOOSE_DB_CONNECTION.MAIN,
     ),
   ],
   controllers: [EmailController],

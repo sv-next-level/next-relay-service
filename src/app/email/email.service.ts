@@ -1,18 +1,22 @@
 import { Model } from "mongoose";
 import * as nodemailer from "nodemailer";
+
+import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
-import { Injectable, Logger } from "@nestjs/common";
 
 import { SendEmailDTO } from "@/dto";
+
+import { MONGOOSE_DB_CONNECTION } from "@/db/connection";
+import { EMAIL_SCHEMA_NAME, EmailDocument } from "@/db/mongo/model";
+
 import { OTP, PASSWORD } from "@/common/notification";
+
 import {
   email2FACodeTemplate,
   emailCreatePasswordTemplate,
   emailForgotPasswordTemplate,
 } from "@/templates/email";
-import { MONGOOSE_DB_CONNECTION } from "@/db/connection";
-import { EMAIL_SCHEMA_NAME, EmailDocument } from "@/db/mongo/model";
 
 @Injectable()
 export class EmailService {
@@ -22,7 +26,7 @@ export class EmailService {
   constructor(
     @InjectModel(EMAIL_SCHEMA_NAME, MONGOOSE_DB_CONNECTION.MAIN)
     private readonly emailModel: Model<EmailDocument>,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {
     try {
       this.logger.debug({
@@ -124,7 +128,7 @@ export class EmailService {
   async sendEmail(
     recipient: string,
     subject: string,
-    message: string
+    message: string,
   ): Promise<any> {
     try {
       const from: string = this.configService.get<string>("SMTP.EMAIL");

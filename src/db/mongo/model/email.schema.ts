@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
-import { SERVICE } from "@/common/server/service";
 import { EMAIL_ACTION, EMAIL_VENDOR, TYPE } from "@/common/notification";
+import { SERVICE } from "@/common/server/service";
 
 @Schema({
   timestamps: true,

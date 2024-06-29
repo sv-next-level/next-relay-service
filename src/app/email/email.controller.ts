@@ -1,10 +1,14 @@
 import { Body, Controller, Logger, Post } from "@nestjs/common";
 
-import { TYPE } from "@/common/notification";
-import { EmailService } from "@/app/email/email.service";
 import { ResendEmailDTO, SendEmailDTO, VerifyEmailDTO } from "@/dto";
-import { BadRequest, IApiResponse, InternalServerError, OK } from "@/utils";
+
+import { EmailService } from "@/app/email/email.service";
+
 import { EmailDocument } from "@/db/mongo/model";
+
+import { TYPE } from "@/common/notification";
+
+import { BadRequest, IApiResponse, InternalServerError, OK } from "@/utils";
 
 @Controller("email")
 export class EmailController {
@@ -41,7 +45,7 @@ export class EmailController {
       // Create email template as per email type
       const emailHtmlTemplate: string = this.emailService.getEmailHtmlTemplate(
         savedEmailData.action,
-        savedEmailData.data.otp
+        savedEmailData.data.otp,
       );
       if (!emailHtmlTemplate) {
         this.logger.warn({
@@ -55,12 +59,12 @@ export class EmailController {
       const sendedEmailData: any = await this.emailService.sendEmail(
         savedEmailData.to,
         savedEmailData.type,
-        emailHtmlTemplate
+        emailHtmlTemplate,
       );
 
       // Update in db
       const expiresAfter = new Date(
-        Date.now() + sendEmailData.expires_after * 1000
+        Date.now() + sendEmailData.expires_after * 1000,
       );
       const updateData: any = {
         message_id: sendedEmailData.messageId,
@@ -70,7 +74,7 @@ export class EmailController {
 
       const updatedRelayId: string = await this.emailService.updateEmailData(
         savedEmailData._id,
-        updateData
+        updateData,
       );
 
       this.logger.log({
@@ -249,7 +253,7 @@ export class EmailController {
       // Create email template as per email type
       const emailHtmlTemplate: string = this.emailService.getEmailHtmlTemplate(
         relayTransaction.type,
-        resendEmailDto.data
+        resendEmailDto.data,
       );
       if (!emailHtmlTemplate) {
         this.logger.warn({
@@ -263,11 +267,11 @@ export class EmailController {
       const sendedEmailData: any = await this.emailService.sendEmail(
         relayTransaction.to,
         relayTransaction.type,
-        emailHtmlTemplate
+        emailHtmlTemplate,
       );
 
       const expiresAfter = new Date(
-        Date.now() + resendEmailDto.expires_after * 1000
+        Date.now() + resendEmailDto.expires_after * 1000,
       );
       const updateData: any = {
         data: resendEmailDto.data,
@@ -277,7 +281,7 @@ export class EmailController {
       };
       const updatedRelayId: string = await this.emailService.updateEmailData(
         relayTransaction._id,
-        updateData
+        updateData,
       );
 
       this.logger.log({

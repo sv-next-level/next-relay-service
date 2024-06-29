@@ -1,5 +1,6 @@
-import { CONNECTION } from "@/common/db/mongo/connection";
 import { ModelDefinition } from "@nestjs/mongoose";
+
+import { CONNECTION } from "@/common/db/mongo/connection";
 
 export interface MongooseDbSchema {
   connectionName: string;
