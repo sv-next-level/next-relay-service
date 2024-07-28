@@ -132,6 +132,7 @@ dist
 # dev dependencies
 .husky
 .czrc
+.editorconfig
 .eslintignore
 .eslintrc
 .lintstagedrc
